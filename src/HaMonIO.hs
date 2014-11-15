@@ -66,7 +66,7 @@ instance IOMonad (Imp s) where
 -- them by mess. All this is wrapped in an Imp-monad.
 convertIOtoImp :: IO a -> String -> Imp s a
 convertIOtoImp com mess = SIOSE (\state -> fmap (\x -> (state,x)) com')
-                        where com' = E.catchIOError (map return com) -- where com' = E.catch (map return com)
+                        where com' = E.catchIOError (fmap return com) -- where com' = E.catch (map return com)
                                            (\_ -> return (errS mess)) 
       
 -- Imp has a state:
@@ -94,7 +94,7 @@ instance ErrorSMonad (Imp a) where
 -- goSte x s  executes x with initial state s
 -- unhandled errors in x are ignored!
 goSte :: Imp s a -> s -> IO a
-goSte (SIOSE x) s = map (\(st,x') -> noErr (const "") x') (x s)
+goSte (SIOSE x) s = fmap (\(st,x') -> noErr (const "") x') (x s)
 
 
 performS :: s -> State s a -> Imp b (a,s)

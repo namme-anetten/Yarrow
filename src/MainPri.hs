@@ -24,7 +24,7 @@ showListModules = fetchModulesInfo >>= \mi ->
                   if null mi then
                      return []
                   else
-                     map (++[""]) showModules
+                     fmap (++[""]) showModules
 
 showModules :: M [String]
 showModules = fetchModulesInfo >>= \mi ->

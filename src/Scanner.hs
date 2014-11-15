@@ -114,7 +114,7 @@ isV c = isAlphaNum c
 scanLine :: (Functor m,ErrorSMonad m) => 
             String -> Int -> m [(Token,PlaceInfo)]
 scanLine s ln = let len = length s in
-                map (map (\(t,(s,e)) -> (t,((ln,len-s),(ln,len-e)))))
+                fmap (map (\(t,(s,e)) -> (t,((ln,len-s),(ln,len-e)))))
                     (scanLine' s len ln)
 
 scanLine' :: (Functor m,ErrorSMonad m) => 
@@ -127,7 +127,7 @@ scanLine' s' len ln = handleS (scan' s')
                       (\[ES mes] -> let p = len - length s' in
                                     errP ((ln,p),(ln,p+1)) mes)
                       (\(t,s'') -> 
-                        map ((t,(length s',length s'')) :)
+                        fmap ((t,(length s',length s'')) :)
                             (scanLine' s'' len ln))
 
 -- isInputComplete checks whether a list of tokens constitutes a complete
@@ -195,7 +195,7 @@ scan' (c:s) | isV1 c = let (v,s2) = span isV (c:s)
                        return (special v,s2)
 scan' (c:s) | isDigit c = let (n,s2) = readNum (c:s) in
                           return (Num n,s2)
-scan' (c:s) = map (`pair` s) (scan1 c)
+scan' (c:s) = fmap (`pair` s) (scan1 c)
 
 scan1 :: PreErrorMonad m => Char -> m Token
 scan1 '.'  = return Dot
