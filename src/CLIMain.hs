@@ -75,7 +75,7 @@ instance PartContext CLIS where
          insertCon f (CLIS clis) = CLIS (doFst5 (const (insertCon f (fst5 clis))) clis)
 
 instance PartSyntax s => HasSyntax (Imp s) where
-     updateSyn f = map extractSyn (updateS3 (insertSyn f))
+     updateSyn f = fmap extractSyn (updateS3 (insertSyn f))
      -- hbc 0.9999.4 will complain if we replace updateS3 above by update,
      -- so we need a updateS3 function with a more restricted type.
 
@@ -83,11 +83,11 @@ updateS3 :: (s->s) -> Imp s s
 updateS3 = update
 
 instance PartContext s => HasContext (Imp s) where
-     updateCon f = map extractCon (updateS3 (insertCon f))
+     updateCon f = fmap extractCon (updateS3 (insertCon f))
 
 -- Input files
 fetchInputFile :: CLI FileInput
-fetchInputFile = map (snd5.unClis) fetchS5
+fetchInputFile = fmap (snd5.unClis) fetchS5
 
 fetchS5 :: Imp s s
 fetchS5 = fetch
@@ -97,7 +97,7 @@ updateInputFile f = update' (CLIS . doSnd5 f . unClis)
 
 -- Environment variables
 fetchEnvVars :: CLI EnvVars
-fetchEnvVars = map (thd5.unClis) fetchS5
+fetchEnvVars = fmap (thd5.unClis) fetchS5
 
 fetchYarrowDir :: CLI String
 fetchYarrowDir = fetchEnvVars
@@ -107,14 +107,14 @@ setEnvVars envVars = update' (CLIS . doThd5 (const envVars) . unClis)
 
 -- path stuff
 fetchPaths :: CLI Paths
-fetchPaths = map (fth5.unClis) fetchS5
+fetchPaths = fmap (fth5.unClis) fetchS5
 
 setNewPath :: String -> CLI ()
 setNewPath path = update' (CLIS . doFth5 (path :) . unClis)
 
 -- current task
 fetchCurTaskId :: CLI TaskId
-fetchCurTaskId = map (ffh5.unClis) fetchS5
+fetchCurTaskId = fmap (ffh5.unClis) fetchS5
 
 setCurTaskId :: TaskId -> CLI ()
 setCurTaskId taskId = update' (CLIS. doFfh5 (const taskId) . unClis)
@@ -277,7 +277,7 @@ getLineI = fetchInputFile >>= \ils ->
 doFullParse getLine pars = 
   scanLines [] 1 >>= \ts ->
   fetchSyn >>= \si ->
-  map fst (performS (PARSES (si,ts)) pars)
+  fmap fst (performS (PARSES (si,ts)) pars)
 
 -- scanLines ln  scans lines, starting with line number ln
 scanLines :: Tokens -> Int -> CLI Tokens
